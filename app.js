@@ -103,7 +103,7 @@ mongoose
   .connect(
     isDev ? 
       'mongodb://localhost:27017/focustracker' : 
-      process.env.NODE_ENV
+      process.env.MONGO_URI
   )
   .then(result => {
     app.listen(8080);
