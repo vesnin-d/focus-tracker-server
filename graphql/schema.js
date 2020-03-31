@@ -11,6 +11,16 @@ module.exports = buildSchema(`
         updatedAt: String!
     }
 
+    type Timer {
+        _id: ID!
+        isRunning: Boolean!
+        startedAt: Int!
+        resumedAt: Int
+        remains: Int!
+        createdAt: String!
+        updatedAt: String!
+    }
+
     type User {
         _id: ID!
         name: String!
@@ -47,6 +57,7 @@ module.exports = buildSchema(`
         posts(page: Int): PostData!
         post(id: ID!): Post!
         user: User!
+        timer(id: ID!): Timer!
     }
 
     type RootMutation {
@@ -55,6 +66,9 @@ module.exports = buildSchema(`
         updatePost(id: ID!, postInput: PostInputData): Post!
         deletePost(id: ID!): Boolean
         updateStatus(status: String!): User!
+        createTimer(startedAt: Int!): Timer!
+        stopTimer(id: ID!): Timer!
+        resumeTimer(id: ID!): Timer!
     }
 
     schema {
