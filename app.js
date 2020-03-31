@@ -96,9 +96,14 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
+
+const isDev = process.env.NODE_ENV !== 'production';
+
 mongoose
   .connect(
-    'mongodb://localhost:27017/focustracker'
+    isDev ? 
+      'mongodb://localhost:27017/focustracker' : 
+      process.env.NODE_ENV
   )
   .then(result => {
     app.listen(8080);
