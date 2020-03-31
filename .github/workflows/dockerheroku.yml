@@ -1,0 +1,27 @@
+name: Docker Image Heroku Deploy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag focus-tracker-server:$(date +%s)
+    - uses: akhileshns/heroku-deploy@v3.0.0
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "still-inlet-67918"
+        heroku_email: "kumpiskunsk@gmail.com"
+        dontuseforce: false
+        usedocker: true
+
+    
