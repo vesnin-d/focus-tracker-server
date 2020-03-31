@@ -34,6 +34,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const port = process.env.PORT || 8080;
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/focustracker';
+
 app.use(bodyParser.json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
@@ -96,17 +99,12 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-
-const isDev = process.env.NODE_ENV !== 'production';
-
 mongoose
   .connect(
-    isDev ? 
-      'mongodb://localhost:27017/focustracker' : 
-      process.env.MONGO_URI
+    mongoUri
   )
   .then(result => {
-    app.listen(8080);
+    app.listen(port);
   })
   .catch(err => console.log(err));
 
