@@ -1,4 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
+export interface TimerDocument extends mongoose.Document {
+  remains: number;
+  resumedAt: number;
+  startedAt: number;
+  isRunning: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const Schema = mongoose.Schema;
 
 const timerSchema = new Schema(
@@ -22,4 +32,4 @@ const timerSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Timer', timerSchema);
+export default mongoose.model<TimerDocument>('Timer', timerSchema);
