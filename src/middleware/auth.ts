@@ -1,6 +1,11 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 
-module.exports = (req, res, next) => {
+interface DecodedToken {
+  userId: string;
+}
+
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.get('Authorization');
   if (!authHeader) {
     req.isAuth = false;
@@ -9,7 +14,7 @@ module.exports = (req, res, next) => {
   const token = authHeader.split(' ')[1];
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, 'somesupersecretsecret');
+    decodedToken = jwt.verify(token, 'somesupersecretsecret') as DecodedToken;
   } catch (err) {
     req.isAuth = false;
     return next();
@@ -22,3 +27,5 @@ module.exports = (req, res, next) => {
   req.isAuth = true;
   next();
 };
+
+export default authMiddleware;
