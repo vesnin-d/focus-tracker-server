@@ -1,4 +1,3 @@
-import path from 'path';
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
@@ -64,5 +63,3 @@ mongoose
     app.listen(port);
   })
   .catch(err => console.log(err));
-
-
