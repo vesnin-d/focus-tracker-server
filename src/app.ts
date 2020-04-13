@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import graphqlHttp from 'express-graphql';
 import graphqlSchema from './graphql/schema';
-import graphqlResolver from './graphql/resolvers';
+import graphqlResolver from './graphql/resolvers/index';
 import auth from './middleware/auth';
 import { GraphQLError } from 'graphql';
 
@@ -35,7 +35,8 @@ app.use(
     schema: graphqlSchema,
     rootValue: graphqlResolver,
     graphiql: true,
-    formatError(err: GraphQLError) {
+    customFormatErrorFn(err: GraphQLError) {
+      console.log(err, err.originalError);
       if (!err.originalError) {
         return err;
       }
@@ -47,7 +48,7 @@ app.use(
   })
 );
 
-app.use((error: any, req: Request, res: Response) => {
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
