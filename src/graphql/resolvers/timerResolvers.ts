@@ -4,7 +4,7 @@ import { getTimestampInSeconds } from '../../utils';
 
 export async function createTimer({ startTime }: { startTime: number }, req: Request) {
   if (!req.isAuth) {
-    const error = new Error('Not authenticated!') as any;
+    const error = new Error('Not authenticated!');
     error.code = 401;
     throw error;
   }
@@ -30,15 +30,14 @@ export async function createTimer({ startTime }: { startTime: number }, req: Req
 }
 
 export async function timer({ id }: { id: number }, req: Request) {
-  console.log(id);
     if (!req.isAuth) {
-      const error = new Error('Not authenticated!') as any;
+      const error = new Error('Not authenticated!');
       error.code = 401;
       throw error;
     }
     const timer = await Timer.findById(id);
     if (!timer) {
-      const error = new Error('No timer found!') as any;
+      const error = new Error('No timer found!');
       error.code = 404;
       throw error;
     }
@@ -51,17 +50,16 @@ export async function timer({ id }: { id: number }, req: Request) {
 }
 
 export async function pauseTimer({ id }: { id: number }) {
-    console.log(id);
     const timer = await Timer.findById(id);
 
     if (!timer) {
-      const error = new Error('No timer found!') as any;
+      const error = new Error('No timer found!');
       error.code = 404;
       throw error;
     }
 
     if (!timer.isRunning) {
-      const error = new Error('Timer is not running!') as any;
+      const error = new Error('Timer is not running!');
       error.code = 500;
       throw error;
     }
@@ -80,13 +78,13 @@ export async function resumeTimer({ id }: { id: number }) {
     const timer = await Timer.findById(id);
 
     if (!timer) {
-      const error = new Error('No timer found!') as any;
+      const error = new Error('No timer found!');
       error.code = 404;
       throw error;
     }
 
     if (timer.isRunning) {
-      const error = new Error('Timer is already running!') as any;
+      const error = new Error('Timer is already running!');
       error.code = 500;
       throw error;
     }
