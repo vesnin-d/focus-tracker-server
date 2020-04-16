@@ -1,16 +1,6 @@
 import { buildSchema } from 'graphql';
 
 export default buildSchema(`
-    type Post {
-        _id: ID!
-        title: String!
-        content: String!
-        imageUrl: String!
-        creator: User!
-        createdAt: String!
-        updatedAt: String!
-    }
-
     type Timer {
         _id: ID!
         isRunning: Boolean!
@@ -27,17 +17,12 @@ export default buildSchema(`
         email: String!
         password: String
         status: String!
-        posts: [Post!]!
+        timers: [Timer!]!
     }
 
     type AuthData {
         token: String!
         userId: String!
-    }
-
-    type PostData {
-        posts: [Post!]!
-        totalPosts: Int!
     }
 
     input UserInputData {
@@ -46,28 +31,17 @@ export default buildSchema(`
         password: String!
     }
 
-    input PostInputData {
-        title: String!
-        content: String!
-        imageUrl: String!
-    }
-
     type RootQuery {
         login(email: String!, password: String!): AuthData!
-        posts(page: Int): PostData!
-        post(id: ID!): Post!
         user: User!
         timer(id: ID!): Timer!
     }
 
     type RootMutation {
         createUser(userInput: UserInputData): User!
-        createPost(postInput: PostInputData): Post!
-        updatePost(id: ID!, postInput: PostInputData): Post!
-        deletePost(id: ID!): Boolean
         updateStatus(status: String!): User!
-        createTimer(startedAt: Int!): Timer!
-        stopTimer(id: ID!): Timer!
+        createTimer(startTime: Int!): Timer!
+        pauseTimer(id: ID!): Timer!
         resumeTimer(id: ID!): Timer!
     }
 

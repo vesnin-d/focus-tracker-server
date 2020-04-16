@@ -1,25 +1,36 @@
 import { Request } from 'express';
 import Timer from '../../models/timer';
+import { getTimestampInSeconds } from '../../utils';
 
-export async function createTimer({ startedAt }: { startedAt: number }) {
-    const timer = new Timer({
-      startedAt,
-      remains: 25 * 60,
-      resumedAt: null,
-      isRunning: true
-    });
+export async function createTimer({ startTime }: { startTime: number }, req: Request) {
+  if (!req.isAuth) {
+    const error = new Error('Not authenticated!') as any;
+    error.code = 401;
+    throw error;
+  }
 
-    const createdTimer = await timer.save();
+  const timer = new Timer({
+    startedAt: startTime,
+    remains: 25 * 60,
+    resumedAt: null,
+    isRunning: true
+  });
 
-    return {
-      ...createdTimer,
-      _id: createdTimer._id.toString(),
-      createdAt: createdTimer.createdAt.toISOString(),
-      updatedAt: createdTimer.updatedAt.toISOString()
-    };
+  const createdTimer = await timer.save();
+
+  return {
+    _id: createdTimer._id.toString(),
+    startedAt: createdTimer.startedAt,
+    resumedAt: createdTimer.resumedAt,
+    remains: createdTimer.remains,
+    isRunning: createdTimer.isRunning,
+    createdAt: createdTimer.createdAt.toISOString(),
+    updatedAt: createdTimer.updatedAt.toISOString()
+  };
 }
 
 export async function timer({ id }: { id: number }, req: Request) {
+  console.log(id);
     if (!req.isAuth) {
       const error = new Error('Not authenticated!') as any;
       error.code = 401;
@@ -32,14 +43,15 @@ export async function timer({ id }: { id: number }, req: Request) {
       throw error;
     }
     return {
-      ...timer,
+      ...timer._doc,
       _id: timer._id.toString(),
       createdAt: timer.createdAt.toISOString(),
       updatedAt: timer.updatedAt.toISOString()
     };
 }
 
-export async function stopTimer({ id }: { id: number }) {
+export async function pauseTimer({ id }: { id: number }) {
+    console.log(id);
     const timer = await Timer.findById(id);
 
     if (!timer) {
@@ -55,33 +67,36 @@ export async function stopTimer({ id }: { id: number }) {
     }
 
     timer.isRunning = false;
+    timer.remains = timer.remains - (getTimestampInSeconds() - timer.startedAt);
     await timer.save();
 
     return {
-      ...timer,
+      ...timer._doc,
       _id: timer._id.toString()
     };
 }
 
 export async function resumeTimer({ id }: { id: number }) {
     const timer = await Timer.findById(id);
+
     if (!timer) {
       const error = new Error('No timer found!') as any;
       error.code = 404;
       throw error;
     }
 
-    if (!timer.isRunning) {
-      const error = new Error('Timer is not running!') as any;
+    if (timer.isRunning) {
+      const error = new Error('Timer is already running!') as any;
       error.code = 500;
       throw error;
     }
 
-    timer.isRunning = false;
+    timer.isRunning = true;
+    timer.resumedAt = getTimestampInSeconds();
     await timer.save();
 
     return {
-      ...timer,
+      ...timer._doc,
       _id: timer._id.toString()
     };
 }

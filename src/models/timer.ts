@@ -7,6 +7,7 @@ export interface TimerDocument extends mongoose.Document {
   isRunning: boolean;
   createdAt: Date;
   updatedAt: Date;
+  _doc: any;
 }
 
 const Schema = mongoose.Schema;
