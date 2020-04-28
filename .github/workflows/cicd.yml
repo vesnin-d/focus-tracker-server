@@ -1,10 +1,15 @@
 name: Pull Request Check and Docker Image Heroku Deploy
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
 
   prcheck:
+    name: Pull Request Check
     runs-on: [ubuntu-latest]
 
     steps:
@@ -12,17 +17,22 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 13.x
-    - run: npm install
+    
+    - name: Install dependencies
+      run: npm ci
+
     - run: npm audit
-    - run: npm run build --if-present
-    - run: npm test
+
+    - name: Build
+      run: npm run build
       env:
         CI: true
 
   deploy:
+    name: Deploy Docker Image to Heroku
     needs: prcheck
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
