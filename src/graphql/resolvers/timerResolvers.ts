@@ -4,7 +4,7 @@ import { getTimestampInSeconds } from '../../utils';
 
 export async function createTimer({ startTime }: { startTime: number }, req: Request) {
   if (!req.isAuth) {
-    const error = new Error('Not authenticated!');
+    const error = new Error('Not authenticated!') as any;
     error.code = 401;
     throw error;
   }
@@ -31,13 +31,13 @@ export async function createTimer({ startTime }: { startTime: number }, req: Req
 
 export async function timer({ id }: { id: number }, req: Request) {
     if (!req.isAuth) {
-      const error = new Error('Not authenticated!');
+      const error = new Error('Not authenticated!') as any;
       error.code = 401;
       throw error;
     }
     const timer = await Timer.findById(id);
     if (!timer) {
-      const error = new Error('No timer found!');
+      const error = new Error('No timer found!') as any;
       error.code = 404;
       throw error;
     }
@@ -53,13 +53,13 @@ export async function pauseTimer({ id }: { id: number }) {
     const timer = await Timer.findById(id);
 
     if (!timer) {
-      const error = new Error('No timer found!');
+      const error = new Error('No timer found!') as any;
       error.code = 404;
       throw error;
     }
 
     if (!timer.isRunning) {
-      const error = new Error('Timer is not running!');
+      const error = new Error('Timer is not running!') as any;
       error.code = 500;
       throw error;
     }
@@ -78,13 +78,13 @@ export async function resumeTimer({ id }: { id: number }) {
     const timer = await Timer.findById(id);
 
     if (!timer) {
-      const error = new Error('No timer found!');
+      const error = new Error('No timer found!') as any;
       error.code = 404;
       throw error;
     }
 
     if (timer.isRunning) {
-      const error = new Error('Timer is already running!');
+      const error = new Error('Timer is already running!') as any;
       error.code = 500;
       throw error;
     }
