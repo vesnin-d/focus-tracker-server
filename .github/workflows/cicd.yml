@@ -1,0 +1,37 @@
+name: Pull Request Check and Docker Image Heroku Deploy
+
+on: [push, pull_request]
+
+jobs:
+
+  prcheck:
+    runs-on: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 13.x
+    - run: npm install
+    - run: npm audit
+    - run: npm run build --if-present
+    - run: npm test
+      env:
+        CI: true
+
+  deploy:
+    needs: prcheck
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: akhileshns/heroku-deploy@v3.0.0
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "still-inlet-67918"
+        heroku_email: "kumpiskunsk@gmail.com"
+        dontuseforce: false
+        usedocker: true
+
+    
