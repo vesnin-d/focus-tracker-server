@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import TimeRecord, { TimeRecordDocument } from '../../models/timeRecord';
-import { getTimeRecordById, getUserById, getTaskById, updateTimeRecordById } from './resolverUtils';
+import { getTimeRecordById, getUserById, getTaskById, updateTimeRecordById, isAuthenticated } from './resolverUtils';
 import { Schema } from 'mongoose';
 
 export async function addTimeRecord(duration: number, userId: Schema.Types.ObjectId) {
@@ -21,17 +21,16 @@ export function assignTimeRecordToTask(timeRecordId: string, taskId: string) {
 
 export default {
   RootQuery: {
-    timeRecord: (_: any, args: any) => {
-      return getTimeRecordById(args.id);
-    }
+    timeRecord: isAuthenticated((_: any, args: any) =>
+      getTimeRecordById(args.id))
   }, 
   RootMutation: {
-    assignTimeRecordToTask: (_: any, args: any) => {
-      return assignTimeRecordToTask(args.timeRecordId, args.taskId);
-    },
-    addTimeRecord: (_: any, args: any, req: Request) => {
-      return addTimeRecord(args.duration, req.userId as any);
-    }
+    assignTimeRecordToTask: isAuthenticated((_: any, args: any) =>
+      assignTimeRecordToTask(args.timeRecordId, args.taskId)
+    ),
+    addTimeRecord: isAuthenticated((_: any, args: any, context: any) =>
+      addTimeRecord(args.duration, context.userId as any)
+    )
   },
   TimeRecord: {
     user: (parent: TimeRecordDocument) => {

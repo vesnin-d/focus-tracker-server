@@ -3,7 +3,7 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { Request } from 'express';
 import User, { UserDocument } from '../../models/user';
-import { getUserById, getTimeRecordsForUser, getTasksForUser } from './resolverUtils';
+import { getUserById, getTimeRecordsForUser, getTasksForUser, isAuthenticated } from './resolverUtils';
 
 export interface UserCreationData {
     email: string;
@@ -72,30 +72,13 @@ export async function login(email: string, password: string) {
         userId: user._id.toString() 
     };
 }
-  
-export async function user(_args: any, req: Request) {
-    if (!req.isAuth) {
-      const error = new Error('Not authenticated!') as any;
-      error.code = 401;
-      throw error;
-    }
-
-    const user = await User.findById(req.userId);
-    if (!user) {
-      const error = new Error('No user found!') as any;
-      error.code = 404;
-      throw error;
-    }
-
-    return user;
-}
 
 export default {
     RootQuery: {
         login: (_: any, args: any) => 
             login(args.email, args.password),
-        user: (_: any, args: any, req: Request) => 
-            getUserById(req.userId as any),
+        user: isAuthenticated((_: any, args: any, context: any) => 
+            getUserById(context.userId as any))
     },
     RootMutation: {
         createUser: (_: any, args: any) => 

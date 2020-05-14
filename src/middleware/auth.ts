@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-interface DecodedToken {
+export interface DecodedToken {
   userId: string;
 }
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.get('Authorization') || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTgzODgzOWIwMTE0NDYzMzc1MGRmMTciLCJlbWFpbCI6IndoaXp6Zmxhc2tAZ21haWwuY29tIiwiaWF0IjoxNTg5NDgwNzgzLCJleHAiOjE1ODk0ODQzODN9.Hgd8Q20MYa1lH7h0Jvm7x5EJrCg84QltAlIyaaj1Ku8";
+  const authHeader = req.get('Authorization') || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTgzODgzOWIwMTE0NDYzMzc1MGRmMTciLCJlbWFpbCI6IndoaXp6Zmxhc2tAZ21haWwuY29tIiwiaWF0IjoxNTg5NDg2OTI2LCJleHAiOjE1ODk0OTA1MjZ9.buBp3CWfpYm8zhg1Ru1LMNWFyy7L30Wmy_AF9aTmqaw";
   if (!authHeader) {
     req.isAuth = false;
     return next();
