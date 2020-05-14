@@ -2,17 +2,16 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { Request } from 'express';
-import User from '../../models/user';
+import User, { UserDocument } from '../../models/user';
+import { getUserById, getTimeRecordsForUser, getTasksForUser } from './resolverUtils';
 
 export interface UserCreationData {
-    userInput: {
-        email: string;
-        password: string;
-        name?: string;
-    }
+    email: string;
+    password: string;
+    name?: string;
 }
 
-export async function createUser({ userInput }: UserCreationData) {
+export async function createUser(userInput: UserCreationData) {
     const errors = [];
     if (!validator.isEmail(userInput.email)) {
         errors.push({ message: 'E-Mail is invalid.' });
@@ -44,10 +43,7 @@ export async function createUser({ userInput }: UserCreationData) {
     return { ...createdUser, _id: createdUser._id.toString() };
 }
 
-export async function login({ email, password }: {
-    email: string;
-    password: string;
-}) {
+export async function login(email: string, password: string) {
     const user = await User.findOne({ email: email });
     if (!user) {
         const error = new Error('User not found.') as any;
@@ -91,8 +87,24 @@ export async function user(_args: any, req: Request) {
       throw error;
     }
 
-    return { 
-        ...user, 
-        _id: user._id.toString() 
-    };
+    return user;
 }
+
+export default {
+    RootQuery: {
+        login: (_: any, args: any) => 
+            login(args.email, args.password),
+        user: (_: any, args: any, req: Request) => 
+            getUserById(req.userId as any),
+    },
+    RootMutation: {
+        createUser: (_: any, args: any) => 
+            createUser(args.userInput)
+    },
+    User: {
+        timeRecords: (parent: UserDocument) =>
+            getTimeRecordsForUser(parent._id),
+        tasks: (parent: UserDocument) =>
+            getTasksForUser(parent._id),
+    }
+};

@@ -2,10 +2,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import graphqlHttp from 'express-graphql';
-import graphqlSchema from './graphql/schema';
+import { GraphQLError } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+import { importSchema } from 'graphql-import';
 import graphqlResolver from './graphql/resolvers/index';
 import auth from './middleware/auth';
-import { GraphQLError } from 'graphql';
 
 const app = express();
 
@@ -32,9 +33,14 @@ app.use(auth);
 app.use(
   '/graphql',
   graphqlHttp({
-    schema: graphqlSchema,
-    rootValue: graphqlResolver,
+    schema: makeExecutableSchema({
+      typeDefs: importSchema('./src/graphql/schema.graphql'),
+      resolvers: graphqlResolver
+    }),
     graphiql: true,
+    // context: ({ req }: any) => ({
+    //   authScope: getScope(req.headers.authorization)
+    // })
     customFormatErrorFn(err: GraphQLError) {
       console.log(err, err.originalError);
       if (!err.originalError) {
