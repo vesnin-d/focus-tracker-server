@@ -1,7 +1,9 @@
-import * as userResolvers from './userResolvers';
-import * as timerResolvers from './timerResolvers';
+import taskResolvers from './taskResolvers';
+import timeRecordResolvers from './timeRecordResolvers';
+import userResolvers from './userResolvers';
 
-export default {
-    ...userResolvers,
-    ...timerResolvers
-};
+export default [
+    timeRecordResolvers,
+    userResolvers,
+    taskResolvers
+];

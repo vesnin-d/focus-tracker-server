@@ -1,0 +1,59 @@
+
+input UserInputData {
+    email: String!
+    name: String!
+    password: String!
+}
+
+type TimeRecord {
+    _id: ID!
+    duration: Int!
+    user: User!
+    task: Task
+    createdAt: String!
+    updatedAt: String!
+}
+
+type Task {
+    _id: ID!
+    title: String!
+    user: User!
+    timeRecords: [TimeRecord!]!
+    createdAt: String!
+    updatedAt: String!
+}
+
+type User {
+    _id: ID!
+    name: String!
+    email: String!
+    password: String
+    status: String!
+    timeRecords: [TimeRecord!]!
+    tasks: [Task!]!
+}
+
+type AuthData {
+    token: String!
+    userId: String!
+}
+
+type RootQuery {
+    login(email: String!, password: String!): AuthData!
+    user: User!
+    timeRecord(id: ID!): TimeRecord!
+    task(id: ID!): Task!
+}
+
+type RootMutation {
+    createUser(userInput: UserInputData): User!
+    updateStatus(status: String!): User!
+    addTimeRecord(duration: Int!): TimeRecord!
+    assignTimeRecordToTask(timeRecordId: ID!, taskId: ID!): TimeRecord!
+    addTask(title: String!): Task!
+}
+
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}
