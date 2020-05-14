@@ -5,6 +5,7 @@ import graphqlHttp from 'express-graphql';
 import { GraphQLError } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
 import { importSchema } from 'graphql-import';
+import jwt from 'jsonwebtoken';
 import graphqlResolver from './graphql/resolvers/index';
 import auth from './middleware/auth';
 
@@ -38,19 +39,17 @@ app.use(
       resolvers: graphqlResolver
     }),
     graphiql: true,
-    // context: ({ req }: any) => ({
-    //   authScope: getScope(req.headers.authorization)
-    // })
-    customFormatErrorFn(err: GraphQLError) {
-      console.log(err, err.originalError);
-      if (!err.originalError) {
-        return err;
-      }
-      const data = (err.originalError as any).data;
-      const message = err.message || 'An error occurred.';
-      const code = (err.originalError as any).code || 500;
-      return { message: message, status: code, data: data };
-    }
+    // ,
+    // customFormatErrorFn(err: GraphQLError) {
+    //   console.log(err, err.originalError);
+    //   if (!err.originalError) {
+    //     return err;
+    //   }
+    //   const data = (err.originalError as any).data;
+    //   const message = err.message || 'An error occurred.';
+    //   const code = (err.originalError as any).code || 500;
+    //   return { message: message, status: code, data: data };
+    // }
   })
 );
 

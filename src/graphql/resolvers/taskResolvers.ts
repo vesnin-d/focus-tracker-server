@@ -1,6 +1,5 @@
-import { Request } from 'express';
 import Task, { TaskDocument } from '../../models/task';
-import { getTaskById, getUserById, getTimeRecordsForTask } from './resolverUtils';
+import { getTaskById, getUserById, getTimeRecordsForTask, isAuthenticated } from './resolverUtils';
 
 export async function addTask( title: string, user: string) {
   const task = new Task({
@@ -13,12 +12,12 @@ export async function addTask( title: string, user: string) {
 
 export default {
   RootQuery: {
-    task: (_: any, args: any) => 
-      getTaskById(args.id)
+    task: isAuthenticated((_: any, args: any) => 
+      getTaskById(args.id))
   },
   RootMutation: {
-    addTask: (_: any, args: any, req: Request) => 
-      addTask(args.title, req.userId as any)
+    addTask: isAuthenticated((_: any, args: any, context: any) => 
+      addTask(args.title, context.userId as any))
   },
   Task: {
     user: (parent: TaskDocument) => 

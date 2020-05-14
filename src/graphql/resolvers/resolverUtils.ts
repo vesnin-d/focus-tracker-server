@@ -33,3 +33,15 @@ export async function getUserById(id: Schema.Types.ObjectId) {
 export async function getTaskById(id: Schema.Types.ObjectId) {
     return await Task.findById(id);
 }
+
+export function isAuthenticated(next: any) {
+    return (root: any, args: any, context: any, info: any) => {
+        if(!context.isAuth) {
+            const error = new Error('Not authenticated!') as any;	
+            error.code = 401;	
+            throw error;	
+        }
+
+        return next(root, args, context, info);
+    };
+}
