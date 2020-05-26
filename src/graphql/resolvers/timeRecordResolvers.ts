@@ -1,22 +1,22 @@
-import { Request } from 'express';
 import TimeRecord, { TimeRecordDocument } from '../../models/timeRecord';
-import { getTimeRecordById, getUserById, getTaskById, updateTimeRecordById, isAuthenticated } from './resolverUtils';
-import { Schema } from 'mongoose';
+import { getTimeRecordById, getUserById, getTaskById, updateTimeRecordById, isAuthenticated, getId } from './resolverUtils';
 
-export async function addTimeRecord(duration: number, userId: Schema.Types.ObjectId) {
+export async function addTimeRecord(duration: number, taskId: string, userId: string) {
   const timeRecord = new TimeRecord({
     duration,
     user: userId,
-    task: null
+    task: taskId
   });
 
-  const createdTimer = await timeRecord.save();
-
-  return createdTimer._doc;
+  return timeRecord.save();
 }
 
 export function assignTimeRecordToTask(timeRecordId: string, taskId: string) {  
-  return updateTimeRecordById(timeRecordId, { task: taskId });
+    return updateTimeRecordById(timeRecordId, { task: taskId });
+}
+
+export function updateTimeRecordDuration(timeRecordId: string, duration: number) {  
+    return updateTimeRecordById(timeRecordId, { duration });
 }
 
 export default {
@@ -29,16 +29,18 @@ export default {
       assignTimeRecordToTask(args.timeRecordId, args.taskId)
     ),
     addTimeRecord: isAuthenticated((_: any, args: any, context: any) =>
-      addTimeRecord(args.duration, context.userId as any)
-    )
+      addTimeRecord(args.duration, args.taskId, context.userId)
+    ),
+    updateTimeRecordDuration: isAuthenticated((_: any, args: any, context: any) =>
+        updateTimeRecordDuration(args.timeRecordId, args.duration)
+    ),
   },
   TimeRecord: {
-    user: (parent: TimeRecordDocument) => {
-      return getUserById(parent.user);
-    },
+    id: getId,
+    user: (parent: TimeRecordDocument) =>
+        getUserById(parent.user as any),
     task: (parent: TimeRecordDocument) => {
-      console.log(parent);
-      return parent.task ? getTaskById(parent.task) : null;
+        return parent.task ? getTaskById(parent.task as any) : null;
     }
   }
 };

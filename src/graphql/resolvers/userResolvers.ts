@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
-import { Request } from 'express';
 import User, { UserDocument } from '../../models/user';
-import { getUserById, getTimeRecordsForUser, getTasksForUser, isAuthenticated } from './resolverUtils';
+import { getUserById, getTimeRecordsForUser, getTasksForUser, isAuthenticated, getId } from './resolverUtils';
+import { AuthData } from '../generated';
 
 export interface UserCreationData {
     email: string;
@@ -43,7 +43,7 @@ export async function createUser(userInput: UserCreationData) {
     return { ...createdUser, _id: createdUser._id.toString() };
 }
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string): Promise<AuthData> {
     const user = await User.findOne({ email: email });
     if (!user) {
         const error = new Error('User not found.') as any;
@@ -78,16 +78,18 @@ export default {
         login: (_: any, args: any) => 
             login(args.email, args.password),
         user: isAuthenticated((_: any, args: any, context: any) => 
-            getUserById(context.userId as any))
+            getUserById(context.userId))
     },
     RootMutation: {
         createUser: (_: any, args: any) => 
             createUser(args.userInput)
     },
     User: {
+        id: getId,
         timeRecords: (parent: UserDocument) =>
             getTimeRecordsForUser(parent._id),
-        tasks: (parent: UserDocument) =>
-            getTasksForUser(parent._id),
+        tasks: (parent: UserDocument, args: any) => {
+            return getTasksForUser(parent._id, args.completed, args.timeFrame);
+        }
     }
 };

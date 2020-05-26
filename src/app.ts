@@ -39,17 +39,15 @@ app.use(
       resolvers: graphqlResolver
     }),
     graphiql: true,
-    // ,
-    // customFormatErrorFn(err: GraphQLError) {
-    //   console.log(err, err.originalError);
-    //   if (!err.originalError) {
-    //     return err;
-    //   }
-    //   const data = (err.originalError as any).data;
-    //   const message = err.message || 'An error occurred.';
-    //   const code = (err.originalError as any).code || 500;
-    //   return { message: message, status: code, data: data };
-    // }
+    customFormatErrorFn(err: GraphQLError) {
+      if (!err.originalError) {
+        return err;
+      }
+      const data = (err.originalError as any).data;
+      const message = err.message || 'An error occurred.';
+      const code = (err.originalError as any).code || 500;
+      return { message: message, status: code, data: data };
+    }
   })
 );
 
@@ -63,7 +61,11 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
 
 mongoose
   .connect(
-    mongoUri
+    mongoUri,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
   )
   .then(result => {
     app.listen(port);

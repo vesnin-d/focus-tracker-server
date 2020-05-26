@@ -9,19 +9,21 @@ export interface TimeRecordDocument extends mongoose.Document {
   _doc: any;
 }
 
-const timeRecordSchema = new Schema(
-  {
+const timeRecordSchema = new Schema({
+    status: {
+        type: String
+    },
     duration: {
-      type: Number,
-      required: true
+        type: Number,
+        required: true
     },
     user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
     task: {
-      type: Schema.Types.ObjectId,
-      ref: 'Task'
+        type: Schema.Types.ObjectId,
+        ref: 'Task'
     }
   },
   { timestamps: true }

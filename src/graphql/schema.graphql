@@ -1,4 +1,3 @@
-
 input UserInputData {
     email: String!
     name: String!
@@ -6,7 +5,7 @@ input UserInputData {
 }
 
 type TimeRecord {
-    _id: ID!
+    id: ID!
     duration: Int!
     user: User!
     task: Task
@@ -15,22 +14,29 @@ type TimeRecord {
 }
 
 type Task {
-    _id: ID!
+    id: ID!
     title: String!
     user: User!
+    isCompleted: Boolean!
     timeRecords: [TimeRecord!]!
     createdAt: String!
     updatedAt: String!
 }
 
+enum TimeFrames {
+    MONTH
+    WEEK
+    DAY
+}
+
 type User {
-    _id: ID!
+    id: ID!
     name: String!
     email: String!
     password: String
     status: String!
     timeRecords: [TimeRecord!]!
-    tasks: [Task!]!
+    tasks(completed: Boolean = false, timeFrame: TimeFrames = DAY): [Task!]!
 }
 
 type AuthData {
@@ -48,9 +54,11 @@ type RootQuery {
 type RootMutation {
     createUser(userInput: UserInputData): User!
     updateStatus(status: String!): User!
-    addTimeRecord(duration: Int!): TimeRecord!
+    addTimeRecord(duration: Int!, taskId: ID): TimeRecord!
+    updateTimeRecordDuration(timeRecordId: ID!, newDuration: Int!): TimeRecord!,
     assignTimeRecordToTask(timeRecordId: ID!, taskId: ID!): TimeRecord!
     addTask(title: String!): Task!
+    completeTask(id: ID!): Task!
 }
 
 schema {

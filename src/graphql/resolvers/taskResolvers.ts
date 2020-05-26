@@ -1,13 +1,18 @@
 import Task, { TaskDocument } from '../../models/task';
-import { getTaskById, getUserById, getTimeRecordsForTask, isAuthenticated } from './resolverUtils';
+import { getTaskById, getUserById, getTimeRecordsForTask, isAuthenticated, updateTimeRecordById, updateTaskById, getId } from './resolverUtils';
 
-export async function addTask( title: string, user: string) {
+export function addTask(title: string, user: string) {
   const task = new Task({
     title,
-    user
+    user,
+    isCompleted: false
   });
 
-  return await task.save();
+  return task.save();
+}
+
+export async function markTaskCompleted(taskId: any) {
+  return updateTaskById(taskId, { isCompleted: true });
 }
 
 export default {
@@ -17,11 +22,14 @@ export default {
   },
   RootMutation: {
     addTask: isAuthenticated((_: any, args: any, context: any) => 
-      addTask(args.title, context.userId as any))
+      addTask(args.title, context.userId as any)),
+    completeTask: isAuthenticated((_: any, args: any) => 
+      markTaskCompleted(args.id))
   },
   Task: {
+    id: getId,  
     user: (parent: TaskDocument) => 
-      getUserById(parent.user),
+      getUserById(parent.user as any),
     timeRecords: (parent: TaskDocument) => 
       getTimeRecordsForTask(parent._id),
   }

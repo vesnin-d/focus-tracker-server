@@ -21,8 +21,10 @@ export type RootMutation = {
   createUser: User;
   updateStatus: User;
   addTimeRecord: TimeRecord;
+  updateTimeRecordDuration: TimeRecord;
   assignTimeRecordToTask: TimeRecord;
   addTask: Task;
+  completeTask: Task;
 };
 
 
@@ -38,6 +40,13 @@ export type RootMutationUpdateStatusArgs = {
 
 export type RootMutationAddTimeRecordArgs = {
   duration: Scalars['Int'];
+  taskId?: Maybe<Scalars['ID']>;
+};
+
+
+export type RootMutationUpdateTimeRecordDurationArgs = {
+  timeRecordId: Scalars['ID'];
+  newDuration: Scalars['Int'];
 };
 
 
@@ -49,6 +58,11 @@ export type RootMutationAssignTimeRecordToTaskArgs = {
 
 export type RootMutationAddTaskArgs = {
   title: Scalars['String'];
+};
+
+
+export type RootMutationCompleteTaskArgs = {
+  id: Scalars['ID'];
 };
 
 export type RootQuery = {
@@ -77,17 +91,24 @@ export type RootQueryTaskArgs = {
 
 export type Task = {
    __typename?: 'Task';
-  _id: Scalars['ID'];
+  id: Scalars['ID'];
   title: Scalars['String'];
   user: User;
+  isCompleted: Scalars['Boolean'];
   timeRecords: Array<TimeRecord>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
 
+export enum TimeFrames {
+  Month = 'MONTH',
+  Week = 'WEEK',
+  Day = 'DAY'
+}
+
 export type TimeRecord = {
    __typename?: 'TimeRecord';
-  _id: Scalars['ID'];
+  id: Scalars['ID'];
   duration: Scalars['Int'];
   user: User;
   task?: Maybe<Task>;
@@ -97,13 +118,19 @@ export type TimeRecord = {
 
 export type User = {
    __typename?: 'User';
-  _id: Scalars['ID'];
+  id: Scalars['ID'];
   name: Scalars['String'];
   email: Scalars['String'];
   password?: Maybe<Scalars['String']>;
   status: Scalars['String'];
   timeRecords: Array<TimeRecord>;
   tasks: Array<Task>;
+};
+
+
+export type UserTasksArgs = {
+  completed?: Maybe<Scalars['Boolean']>;
+  timeFrame?: Maybe<TimeFrames>;
 };
 
 export type UserInputData = {
@@ -193,9 +220,10 @@ export type ResolversTypes = {
   TimeRecord: ResolverTypeWrapper<TimeRecord>,
   Int: ResolverTypeWrapper<Scalars['Int']>,
   Task: ResolverTypeWrapper<Task>,
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
+  TimeFrames: TimeFrames,
   RootMutation: ResolverTypeWrapper<{}>,
   UserInputData: UserInputData,
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -208,9 +236,10 @@ export type ResolversParentTypes = {
   TimeRecord: TimeRecord,
   Int: Scalars['Int'],
   Task: Task,
+  Boolean: Scalars['Boolean'],
+  TimeFrames: TimeFrames,
   RootMutation: {},
   UserInputData: UserInputData,
-  Boolean: Scalars['Boolean'],
 };
 
 export type AuthDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthData'] = ResolversParentTypes['AuthData']> = {
@@ -223,8 +252,10 @@ export type RootMutationResolvers<ContextType = any, ParentType extends Resolver
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<RootMutationCreateUserArgs, never>>,
   updateStatus?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<RootMutationUpdateStatusArgs, 'status'>>,
   addTimeRecord?: Resolver<ResolversTypes['TimeRecord'], ParentType, ContextType, RequireFields<RootMutationAddTimeRecordArgs, 'duration'>>,
+  updateTimeRecordDuration?: Resolver<ResolversTypes['TimeRecord'], ParentType, ContextType, RequireFields<RootMutationUpdateTimeRecordDurationArgs, 'timeRecordId' | 'newDuration'>>,
   assignTimeRecordToTask?: Resolver<ResolversTypes['TimeRecord'], ParentType, ContextType, RequireFields<RootMutationAssignTimeRecordToTaskArgs, 'timeRecordId' | 'taskId'>>,
   addTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<RootMutationAddTaskArgs, 'title'>>,
+  completeTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<RootMutationCompleteTaskArgs, 'id'>>,
 };
 
 export type RootQueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['RootQuery'] = ResolversParentTypes['RootQuery']> = {
@@ -235,9 +266,10 @@ export type RootQueryResolvers<ContextType = any, ParentType extends ResolversPa
 };
 
 export type TaskResolvers<ContextType = any, ParentType extends ResolversParentTypes['Task'] = ResolversParentTypes['Task']> = {
-  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>,
+  isCompleted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>,
   timeRecords?: Resolver<Array<ResolversTypes['TimeRecord']>, ParentType, ContextType>,
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
@@ -245,7 +277,7 @@ export type TaskResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type TimeRecordResolvers<ContextType = any, ParentType extends ResolversParentTypes['TimeRecord'] = ResolversParentTypes['TimeRecord']> = {
-  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
   duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>,
   task?: Resolver<Maybe<ResolversTypes['Task']>, ParentType, ContextType>,
@@ -255,13 +287,13 @@ export type TimeRecordResolvers<ContextType = any, ParentType extends ResolversP
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   password?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   timeRecords?: Resolver<Array<ResolversTypes['TimeRecord']>, ParentType, ContextType>,
-  tasks?: Resolver<Array<ResolversTypes['Task']>, ParentType, ContextType>,
+  tasks?: Resolver<Array<ResolversTypes['Task']>, ParentType, ContextType, RequireFields<UserTasksArgs, 'completed' | 'timeFrame'>>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 };
 
