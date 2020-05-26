@@ -7,10 +7,10 @@
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon dist/app.js",
-    "start": "node --inspect dist/app.js",
+    "start": "node dist/app.js",
     "build": "npm run generate-types && tsc && npm run copy-schema",
     "build:watch": "npm run copy-schema && tsc -w",
-    "copy-schema": "cpx 'src/graphql/schema.graphql' 'dist/graphql' -v",
+    "copy-schema": "cpy 'src/graphql/schema.graphql' 'dist/graphql' -v",
     "generate-types": "graphql-codegen --config codegen.yml"
   },
   "repository": {
@@ -22,7 +22,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
-    "cpx": "^1.5.0",
+    "cpy-cli": "^3.1.1",
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "express-validator": "^6.4.0",
