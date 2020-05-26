@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon dist/app.js",
     "start": "node dist/app.js",
-    "build": "npm run generate-types && tsc && npm run copy-schema",
+    "build": "tsc && npm run copy-schema",
     "build:watch": "npm run copy-schema && tsc -w",
     "copy-schema": "cpy 'src/graphql/schema.graphql' 'dist/graphql' -v",
     "generate-types": "graphql-codegen --config codegen.yml"
