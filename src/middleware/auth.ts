@@ -6,7 +6,7 @@ export interface DecodedToken {
 }
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.get('Authorization') || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTgzODgzOWIwMTE0NDYzMzc1MGRmMTciLCJlbWFpbCI6IndoaXp6Zmxhc2tAZ21haWwuY29tIiwiaWF0IjoxNTg5NDg2OTI2LCJleHAiOjE1ODk0OTA1MjZ9.buBp3CWfpYm8zhg1Ru1LMNWFyy7L30Wmy_AF9aTmqaw";
+  const authHeader = req.get('Authorization');
   if (!authHeader) {
     req.isAuth = false;
     return next();
