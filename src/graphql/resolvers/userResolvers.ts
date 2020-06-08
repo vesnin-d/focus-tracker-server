@@ -96,8 +96,8 @@ export default {
         tasks: (parent: UserDocument, args: UserTasksArgs) =>
             getTasksForUser(
                 parent._id, 
-                args.completed || false, 
-                args.timeFrame || TimeFrames.Day
+                args.completed, 
+                args.timeFrame
             )
     }
 };

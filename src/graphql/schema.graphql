@@ -36,7 +36,7 @@ type User {
     password: String
     status: String!
     timeRecords: [TimeRecord!]!
-    tasks(completed: Boolean = false, timeFrame: TimeFrames = DAY): [Task!]!
+    tasks(completed: Boolean! = false, timeFrame: TimeFrames! = DAY): [Task!]!
 }
 
 type AuthData {
