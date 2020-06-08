@@ -6,10 +6,9 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon dist/app.js",
+    "start:dev": "nodemon --exec ts-node --files src/app.ts",
     "start": "node dist/app.js",
-    "build": "tsc && npm run copy-schema",
-    "build:watch": "npm run copy-schema && tsc -w",
+    "build": "npm run generate-types && tsc && npm run copy-schema",
     "copy-schema": "cpy 'src/graphql/schema.graphql' 'dist/graphql' -v",
     "generate-types": "graphql-codegen --config codegen.yml"
   },
@@ -32,19 +31,20 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.7",
     "socket.io": "^2.3.0",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.2",
     "validator": "^13.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.13.5",
+    "@graphql-codegen/introspection": "1.13.5",
+    "@graphql-codegen/typescript": "1.13.5",
+    "@graphql-codegen/typescript-resolvers": "1.13.5",
     "@types/bcryptjs": "^2.4.2",
     "@types/express": "^4.17.3",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/mongoose": "^5.7.10",
     "@types/validator": "^13.0.0",
     "nodemon": "^2.0.3",
-    "@graphql-codegen/typescript": "1.13.5",
-    "@graphql-codegen/typescript-resolvers": "1.13.5",
-    "@graphql-codegen/introspection": "1.13.5"
+    "ts-node": "^8.10.2"
   }
 }

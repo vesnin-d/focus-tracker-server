@@ -129,8 +129,8 @@ export type User = {
 
 
 export type UserTasksArgs = {
-  completed?: Maybe<Scalars['Boolean']>;
-  timeFrame?: Maybe<TimeFrames>;
+  completed?: Scalars['Boolean'];
+  timeFrame?: TimeFrames;
 };
 
 export type UserInputData = {

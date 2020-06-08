@@ -308,9 +308,13 @@
                 "name": "completed",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false"
               },
@@ -318,9 +322,13 @@
                 "name": "timeFrame",
                 "description": null,
                 "type": {
-                  "kind": "ENUM",
-                  "name": "TimeFrames",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "TimeFrames",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "DAY"
               }

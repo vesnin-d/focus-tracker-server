@@ -4,6 +4,18 @@ import User from '../../models/user';
 import { TimeFrames } from '../generated';
 import { TimeRecordDocument, TaskDocument } from '../../types';
 
+// Time Records
+export interface TimeRecordData {
+    duration: number;
+    user: string;
+    task?: string | null
+}
+
+export function createTimeRecord(data: TimeRecordData) {
+    const timeRecord = new TimeRecord(data);
+    return timeRecord.save();
+}
+
 export function getTimeRecordById(id: string) {
     return TimeRecord.findById(id);
 }
@@ -20,21 +32,24 @@ export function updateTimeRecordById(id: string, fields: Partial<Omit<TimeRecord
     return TimeRecord.findByIdAndUpdate(id, fields, { new: true});
 }
 
-export interface TimeRecordData {
-    duration: number;
-    user: string;
-    task?: string | null
+// Tasks
+export function createTask(title: string, user: string) {
+    const task = new Task({
+        title,
+        user,
+        isCompleted: false
+    });
+    return task.save();
 }
 
-export function createTimeRecord(data: TimeRecordData) {
-    const timeRecord = new TimeRecord(data);
-    return timeRecord.save();
+export function getTaskById(id: string) {
+    return Task.findById(id);
 }
 
 export function getTasksForUser(
     userId: string, 
-    completed: boolean, 
-    timeFrame: TimeFrames
+    completed: boolean = false, 
+    timeFrame: TimeFrames = TimeFrames.Day
 ) {
     const today = new Date();
     let queryDate = new Date();
@@ -53,6 +68,11 @@ export function getTasksForUser(
     });
 }
 
+export function updateTaskById(id: string, fields: Partial<Omit<TaskDocument,'id'>>) {
+    return Task.findByIdAndUpdate(id, fields, { new: true});
+}
+
+// Users
 export function getUserById(id: string) {
     return User.findById(id);
 }
@@ -69,23 +89,6 @@ export function createUser(email: string, password: string, name: string) {
     });
 
     return user.save();
-}
-
-export function getTaskById(id: string) {
-    return Task.findById(id);
-}
-
-export function updateTaskById(id: string, fields: Partial<Omit<TaskDocument,'id'>>) {
-    return Task.findByIdAndUpdate(id, fields, { new: true});
-}
-
-export function createTask(title: string, user: string) {
-    const task = new Task({
-        title,
-        user,
-        isCompleted: false
-    });
-    return task.save();
 }
 
 export function isAuthenticated(next: any) {
