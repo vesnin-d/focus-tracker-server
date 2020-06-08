@@ -1,14 +1,26 @@
-import TimeRecord, { TimeRecordDocument } from '../../models/timeRecord';
-import { getTimeRecordById, getUserById, getTaskById, updateTimeRecordById, isAuthenticated, getId } from './resolverUtils';
+import { 
+    getTimeRecordById, 
+    getUserById,
+    getTaskById, 
+    updateTimeRecordById, 
+    isAuthenticated, 
+    getId, 
+    createTimeRecord 
+} from './resolverUtils';
+import { 
+    RootQueryTimeRecordArgs, 
+    RootMutationAssignTimeRecordToTaskArgs, 
+    RootMutationAddTimeRecordArgs, 
+    RootMutationUpdateTimeRecordDurationArgs 
+} from '../generated';
+import { TimeRecordDocument } from '../../types';
 
-export async function addTimeRecord(duration: number, taskId: string, userId: string) {
-  const timeRecord = new TimeRecord({
+export function addTimeRecord(duration: number, userId: string, taskId?: string | null) {
+  return createTimeRecord({
     duration,
     user: userId,
     task: taskId
   });
-
-  return timeRecord.save();
 }
 
 export function assignTimeRecordToTask(timeRecordId: string, taskId: string) {  
@@ -21,26 +33,36 @@ export function updateTimeRecordDuration(timeRecordId: string, duration: number)
 
 export default {
   RootQuery: {
-    timeRecord: isAuthenticated((_: any, args: any) =>
+    timeRecord: isAuthenticated((_: void, args: RootQueryTimeRecordArgs) =>
       getTimeRecordById(args.id))
   }, 
   RootMutation: {
-    assignTimeRecordToTask: isAuthenticated((_: any, args: any) =>
+    assignTimeRecordToTask: isAuthenticated((
+        _: void, 
+        args: RootMutationAssignTimeRecordToTaskArgs
+    ) =>
       assignTimeRecordToTask(args.timeRecordId, args.taskId)
     ),
-    addTimeRecord: isAuthenticated((_: any, args: any, context: any) =>
-      addTimeRecord(args.duration, args.taskId, context.userId)
+    addTimeRecord: isAuthenticated((
+        _: void, 
+        args: RootMutationAddTimeRecordArgs, 
+        context: Express.Request
+    ) =>
+      addTimeRecord(args.duration, context.userId!, args.taskId)
     ),
-    updateTimeRecordDuration: isAuthenticated((_: any, args: any, context: any) =>
-        updateTimeRecordDuration(args.timeRecordId, args.duration)
+    updateTimeRecordDuration: isAuthenticated((
+        _: void, 
+        args: RootMutationUpdateTimeRecordDurationArgs
+    ) =>
+        updateTimeRecordDuration(args.timeRecordId, args.newDuration)
     ),
   },
   TimeRecord: {
     id: getId,
     user: (parent: TimeRecordDocument) =>
-        getUserById(parent.user as any),
+        getUserById(parent.user),
     task: (parent: TimeRecordDocument) => {
-        return parent.task ? getTaskById(parent.task as any) : null;
+        return parent.task ? getTaskById(parent.task) : null;
     }
   }
 };
