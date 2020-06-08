@@ -1,0 +1,1 @@
+export const DEFAULT_TOKEN = 'iwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0a';

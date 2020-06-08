@@ -19,6 +19,7 @@ import {
     TimeFrames 
 } from '../generated';
 import { UserDocument } from '../../types';
+import { DEFAULT_TOKEN } from '../../utils/constants';
 
 export async function addUser(userInput: UserInputData) {
     const errors = [];
@@ -67,7 +68,7 @@ export async function login(email: string, password: string): Promise<AuthData> 
         userId: user._id.toString(),
         email: user.email
       },
-      process.env.APP_SECRET || 'iwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0a',
+      process.env.APP_SECRET || DEFAULT_TOKEN,
       { expiresIn: '1h' }
     );
 
