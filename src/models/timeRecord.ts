@@ -1,13 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-
-export interface TimeRecordDocument extends mongoose.Document {
-  duration: number;
-  user: Schema.Types.ObjectId;
-  task: Schema.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-  _doc: any;
-}
+import { TimeRecordDocument } from '../types';
 
 const timeRecordSchema = new Schema({
     status: {

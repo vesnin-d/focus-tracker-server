@@ -29,7 +29,7 @@ export type RootMutation = {
 
 
 export type RootMutationCreateUserArgs = {
-  userInput?: Maybe<UserInputData>;
+  userInput: UserInputData;
 };
 
 
@@ -249,7 +249,7 @@ export type AuthDataResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type RootMutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['RootMutation'] = ResolversParentTypes['RootMutation']> = {
-  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<RootMutationCreateUserArgs, never>>,
+  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<RootMutationCreateUserArgs, 'userInput'>>,
   updateStatus?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<RootMutationUpdateStatusArgs, 'status'>>,
   addTimeRecord?: Resolver<ResolversTypes['TimeRecord'], ParentType, ContextType, RequireFields<RootMutationAddTimeRecordArgs, 'duration'>>,
   updateTimeRecordDuration?: Resolver<ResolversTypes['TimeRecord'], ParentType, ContextType, RequireFields<RootMutationUpdateTimeRecordDurationArgs, 'timeRecordId' | 'newDuration'>>,

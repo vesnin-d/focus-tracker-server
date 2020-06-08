@@ -1,40 +1,48 @@
-import { Schema } from 'mongoose';
 import TimeRecord from '../../models/timeRecord';
 import Task from '../../models/task';
 import User from '../../models/user';
+import { TimeFrames } from '../generated';
+import { TimeRecordDocument, TaskDocument } from '../../types';
 
-export async function getTimeRecordById(id: string) {
-    const timeRecord = await TimeRecord.findById(id);
-    return timeRecord?._doc
+export function getTimeRecordById(id: string) {
+    return TimeRecord.findById(id);
 }
 
-export async function getTimeRecordsForUser(userId: string) {
-    const timeRecords = await TimeRecord.find({ user: userId as any });
-    return timeRecords.map(timeRecord => timeRecord._doc);
+export function getTimeRecordsForUser(userId: string) {
+    return TimeRecord.find({ user: userId });
 }
 
 export function getTimeRecordsForTask(taskId: string) {
-    return TimeRecord.find({ task: taskId as any });
+    return TimeRecord.find({ task: taskId });
 }
 
-export async function updateTimeRecordById(id: string, fields: any) {
-    return await TimeRecord.findByIdAndUpdate(id, fields, { new: true});
+export function updateTimeRecordById(id: string, fields: Partial<Omit<TimeRecordDocument, 'id'>>) {
+    return TimeRecord.findByIdAndUpdate(id, fields, { new: true});
 }
 
-type TaskTimeFrame = 'DAY' | 'WEEK' | 'MONTH';
+export interface TimeRecordData {
+    duration: number;
+    user: string;
+    task?: string | null
+}
 
-export async function getTasksForUser(
-    userId: Schema.Types.ObjectId, 
+export function createTimeRecord(data: TimeRecordData) {
+    const timeRecord = new TimeRecord(data);
+    return timeRecord.save();
+}
+
+export function getTasksForUser(
+    userId: string, 
     completed: boolean, 
-    timeFrame: TaskTimeFrame
+    timeFrame: TimeFrames
 ) {
     const today = new Date();
     let queryDate = new Date();
     queryDate.setDate(today.getDate() - 1);
 
-    if (timeFrame === 'MONTH') {
+    if (timeFrame === TimeFrames.Month) {
         queryDate.setMonth(today.getMonth() - 1);
-    } else if(timeFrame === 'WEEK') {
+    } else if(timeFrame === TimeFrames.Week) {
         queryDate.setDate(today.getDate() - 7);
     }
 
@@ -45,16 +53,39 @@ export async function getTasksForUser(
     });
 }
 
-export async function getUserById(id: string) {
-    return await User.findById(id);
+export function getUserById(id: string) {
+    return User.findById(id);
 }
 
-export async function getTaskById(id: string) {
-    return await Task.findById(id);
+export function getUserByEmail(email: string) {
+    return User.findOne({ email });
 }
 
-export async function updateTaskById(id: string, fields: any) {
-    return await Task.findByIdAndUpdate(id, fields, { new: true});
+export function createUser(email: string, password: string, name: string) {
+    const user = new User({
+        email,
+        name,
+        password
+    });
+
+    return user.save();
+}
+
+export function getTaskById(id: string) {
+    return Task.findById(id);
+}
+
+export function updateTaskById(id: string, fields: Partial<Omit<TaskDocument,'id'>>) {
+    return Task.findByIdAndUpdate(id, fields, { new: true});
+}
+
+export function createTask(title: string, user: string) {
+    const task = new Task({
+        title,
+        user,
+        isCompleted: false
+    });
+    return task.save();
 }
 
 export function isAuthenticated(next: any) {

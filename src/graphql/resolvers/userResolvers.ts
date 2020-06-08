@@ -1,17 +1,26 @@
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
-import User, { UserDocument } from '../../models/user';
-import { getUserById, getTimeRecordsForUser, getTasksForUser, isAuthenticated, getId } from './resolverUtils';
-import { AuthData } from '../generated';
+import { 
+    getUserById, 
+    getUserByEmail,
+    getTimeRecordsForUser, 
+    getTasksForUser, 
+    isAuthenticated, 
+    getId, 
+    createUser
+} from './resolverUtils';
+import { 
+    AuthData,
+    RootQueryLoginArgs, 
+    RootMutationCreateUserArgs, 
+    UserInputData, 
+    UserTasksArgs, 
+    TimeFrames 
+} from '../generated';
+import { UserDocument } from '../../types';
 
-export interface UserCreationData {
-    email: string;
-    password: string;
-    name?: string;
-}
-
-export async function createUser(userInput: UserCreationData) {
+export async function addUser(userInput: UserInputData) {
     const errors = [];
     if (!validator.isEmail(userInput.email)) {
         errors.push({ message: 'E-Mail is invalid.' });
@@ -25,37 +34,32 @@ export async function createUser(userInput: UserCreationData) {
     if (errors.length > 0) {
         const error = new Error('Invalid input.') as any;
         error.data = errors;
-        error.code = 422;
+        error.statusCode = 422;
         throw error;
     }
-    const existingUser = await User.findOne({ email: userInput.email });
+    const existingUser = await getUserByEmail(userInput.email);
     if (existingUser) {
         const error = new Error('User exists already!');
         throw error;
     }
     const hashedPw = await bcrypt.hash(userInput.password, 12);
-    const user = new User({
-        email: userInput.email,
-        name: userInput.name,
-        password: hashedPw
-    });
-    const createdUser = await user.save();
-    return { ...createdUser, _id: createdUser._id.toString() };
+    return await createUser(
+        userInput.email,
+        hashedPw,
+        userInput.name
+    );
 }
 
 export async function login(email: string, password: string): Promise<AuthData> {
-    const user = await User.findOne({ email: email });
+    const user = await getUserByEmail(email);
+
     if (!user) {
-        const error = new Error('User not found.') as any;
-        error.code = 401;
-        throw error;
+        throw new Error('User not found.');
     }
 
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      const error = new Error('Password is incorrect.') as any;
-      error.code = 401;
-      throw error;
+      throw new Error('Password is incorrect.');
     }
 
     const token = jwt.sign(
@@ -63,7 +67,7 @@ export async function login(email: string, password: string): Promise<AuthData> 
         userId: user._id.toString(),
         email: user.email
       },
-      'iwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0a',
+      process.env.APP_SECRET || 'iwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0a',
       { expiresIn: '1h' }
     );
 
@@ -75,21 +79,24 @@ export async function login(email: string, password: string): Promise<AuthData> 
 
 export default {
     RootQuery: {
-        login: (_: any, args: any) => 
+        login: (_: void, args: RootQueryLoginArgs) => 
             login(args.email, args.password),
-        user: isAuthenticated((_: any, args: any, context: any) => 
-            getUserById(context.userId))
+        user: isAuthenticated((_: void, args: void, context: Express.Request) => 
+            getUserById(context.userId!))
     },
     RootMutation: {
-        createUser: (_: any, args: any) => 
-            createUser(args.userInput)
+        createUser: (_: void, args: RootMutationCreateUserArgs) => 
+            addUser(args.userInput)
     },
     User: {
         id: getId,
         timeRecords: (parent: UserDocument) =>
             getTimeRecordsForUser(parent._id),
-        tasks: (parent: UserDocument, args: any) => {
-            return getTasksForUser(parent._id, args.completed, args.timeFrame);
-        }
+        tasks: (parent: UserDocument, args: UserTasksArgs) =>
+            getTasksForUser(
+                parent._id, 
+                args.completed || false, 
+                args.timeFrame || TimeFrames.Day
+            )
     }
 };

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { UserDocument } from '../types';
 
 const Schema = mongoose.Schema;
 
@@ -28,12 +29,5 @@ const userSchema = new Schema({
   },
   { timestamps: true }
 );
-
-export interface UserDocument extends mongoose.Document {
-  email: string;
-  password: string;
-  name: string;
-  status?: string;
-}
 
 export default mongoose.model<UserDocument>('User', userSchema);

@@ -52,7 +52,7 @@ type RootQuery {
 }
 
 type RootMutation {
-    createUser(userInput: UserInputData): User!
+    createUser(userInput: UserInputData!): User!
     updateStatus(status: String!): User!
     addTimeRecord(duration: Int!, taskId: ID): TimeRecord!
     updateTimeRecordDuration(timeRecordId: ID!, newDuration: Int!): TimeRecord!,
